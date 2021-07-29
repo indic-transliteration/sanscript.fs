@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Library.fs" />
+  </ItemGroup>
+
+  <!-- Include all language schemes as embedded resources
+  so that we do not incur runtime load delays. -->
+  <ItemGroup>
+    <Content Remove="schemes\brahmic\**"/>
+    <Content Remove="schemes\roman\**"/>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="schemes\brahmic\**"/>
+    <EmbeddedResource Include="schemes\roman\**"/>
+  </ItemGroup>  
+
+</Project>
