@@ -4,3 +4,5 @@
 **/.fake
 **/.ionide
 **/.vscode
+.fake
+.ionide
