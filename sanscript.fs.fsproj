@@ -13,12 +13,15 @@
   <!-- Include all language schemes as embedded resources
   so that we do not incur runtime load delays. -->
   <ItemGroup>
-    <Content Remove="schemes\brahmic\**"/>
-    <Content Remove="schemes\roman\**"/>
+    <Content Remove="toml\brahmic\**" />
+    <Content Remove="toml\roman\**" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="schemes\brahmic\**"/>
-    <EmbeddedResource Include="schemes\roman\**"/>
+    <EmbeddedResource Include="toml\brahmic\**" />
+    <EmbeddedResource Include="toml\roman\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Tommy" Version="3.0.1" />
   </ItemGroup>  
 
 </Project>
