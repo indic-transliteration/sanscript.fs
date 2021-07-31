@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace csharp.example
+namespace CSharp.Demo
 {
     class Program
     {

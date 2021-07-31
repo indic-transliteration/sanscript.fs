@@ -7,21 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Library.fs" />
+    <Compile Include="Sanscript.fs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tommy" Version="3.0.1" />
+  </ItemGroup>  
 
   <!-- Include all language schemes as embedded resources
   so that we do not incur runtime load delays. -->
   <ItemGroup>
     <Content Remove="toml\brahmic\**" />
     <Content Remove="toml\roman\**" />
-  </ItemGroup>
+  </ItemGroup>  
   <ItemGroup>
     <EmbeddedResource Include="toml\brahmic\**" />
     <EmbeddedResource Include="toml\roman\**" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Tommy" Version="3.0.1" />
-  </ItemGroup>  
 
 </Project>
