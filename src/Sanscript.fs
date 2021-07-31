@@ -4,7 +4,6 @@ open System
 open System.IO
 open System.Reflection
 open System.Text
-open System.Collections.Generic
 open Tommy
 
 module Sanscript =

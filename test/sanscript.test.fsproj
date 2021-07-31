@@ -24,4 +24,11 @@
   <ItemGroup>
     <ProjectReference Include="..\src\sanscript.fsproj" />
   </ItemGroup>
+
+    <!-- Include all language test data as resource -->
+  <ItemGroup>
+    <Content Remove="testdata\**" />
+    <EmbeddedResource Include="testdata\**" />    
+  </ItemGroup>  
+
 </Project>

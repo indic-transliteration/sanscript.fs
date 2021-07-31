@@ -1,108 +1,44 @@
 namespace FSharp.Indic.Sanscript.Tests
-open System
-open Xunit
 
+open System.IO
+open System.Reflection
+open System.Text
+open Xunit
 module TestCases =
+    let assembly = Assembly.GetExecutingAssembly()
+    let scasm = Assembly.Load("sanscript")
+
+    let datamanifest (a: Assembly) m =
+        let d = a.GetManifestResourceStream(m)
+        use r = new StreamReader(d, Encoding.UTF8)
+        r.ReadToEnd()
+
+    let data s =
+        let prefix = 
+            let resfolder = "testdata"
+            let resname = assembly.GetManifestResourceNames().[0] 
+            let len =  resname.LastIndexOf(resfolder) + resfolder.Length + 1
+            resname.Substring(0, len)
+
+        let m = prefix + s
+        let d = assembly.GetManifestResourceStream(m)
+        use r = new StreamReader(d, Encoding.UTF8)
+        r.ReadToEnd()
+
     [<Fact>]
     let ``Decode a valid language scheme`` () =
-        let toml = """
-[vowels]
-"अ" = "अ"
-"आ" = "आ"
-
-[vowel_marks]
-"ा" = "ा"
-"ि" = "ि"
-
-[yogavaahas]
-"ं" = "ं"
-"ः" = "ः"
-
-[virama]
-"्" = "्"
-
-[consonants]
-"क" = "क"
-"ख" = "ख"
-
-[symbols]
-"०" = "०"
-"१" = "१"
-
-[zwj]
-"\u200d" = "\u200d"
-
-[zwnj]
-"\u200c" = "\u200c"
-
-[skip]
-"" = ""
-
-[accents]
-"॑" = "॑"
-"॒" = "॒"
-
-[candra]
-"ॅ" = "ॅ"
-
-[extra_consonants]
-"क़" = "क़"
-"ख़" = "ख़"
-
-[alternates]
-"क़" = [ "क़",]
-"ख़" = [ "ख़",]
-"""
+        let toml = data "valid.toml"
         Assert.True(Logic.isGoodScheme toml)
 
     [<Fact>]
     let ``Decode an invalid language scheme`` () =
-        let toml = """
-[vowels]
-"अ" = "अ"
-"आ" = "आ
+        let toml = data "invalid.toml"
+        Assert.False(Logic.isGoodScheme toml)
 
-[vowel_marks]
-"ा" = "ा"
-"ि" = "ि"
-
-[yogavaahas]
-"ं" = "ं"
-"ः" = "ः"
-
-[virama]
-"्" = "्"
-
-[consonants]
-"क" = "क"
-"ख" = "ख"
-
-[symbols]
-"०" = "०"
-"१" = "१"
-
-[zwj]
-"\u200d" = "\u200d"
-
-[zwnj]
-"\u200c" = "\u200c"
-
-[skip]
-"" = ""
-
-[accents]
-"॑" = "॑"
-"॒" = "॒"
-
-[candra]
-"ॅ" = "ॅ"
-
-[extra_consonants]
-"क़" = "क़"
-"ख़" = "ख़"
-
-[alternates]
-"क़" = [ "क़",]
-"ख़" = [ "ख़",]
-"""
-        Assert.False(Logic.isGoodScheme toml)        
+    [<Fact>]
+    let decodeAllSchemes () =
+        scasm.GetManifestResourceNames() 
+        |> Array.filter(fun s -> s.StartsWith("sanscript"))
+        |> Array.map (datamanifest scasm >> Logic.isGoodScheme)
+        |> Array.reduce (&&)
+        |> Assert.True
