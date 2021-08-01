@@ -4,9 +4,12 @@ open System.IO
 open System.Reflection
 open System.Text
 open Xunit
-module TestCases =
+open Xunit.Abstractions
+type TestCases(helper: ITestOutputHelper) =
     let assembly = Assembly.GetExecutingAssembly()
     let scasm = Assembly.Load("sanscript")
+    let log s =
+        helper.WriteLine(s)
 
     let datamanifest (a: Assembly) m =
         let d = a.GetManifestResourceStream(m)
@@ -36,7 +39,7 @@ module TestCases =
         Assert.False(Logic.isGoodScheme toml)
 
     [<Fact>]
-    let decodeAllSchemes () =
+    let ``Decode all language schemes`` () =
         scasm.GetManifestResourceNames() 
         |> Array.filter(fun s -> s.StartsWith("sanscript"))
         |> Array.map (datamanifest scasm >> Logic.isGoodScheme)

@@ -33,7 +33,7 @@ module Sanscript =
 
     let schemes = 
         assembly.GetManifestResourceNames()
-        |> Array.filter (fun m -> m.StartsWith("fsharp.indic"))
+        |> Array.filter (fun m -> m.StartsWith("sanscript"))
         |> Array.map tryDecodeScheme
         |> Async.Parallel
         |> Async.RunSynchronously 

@@ -25,10 +25,15 @@
     <ProjectReference Include="..\src\sanscript.fsproj" />
   </ItemGroup>
 
-    <!-- Include all language test data as resource -->
+  <!-- Include all language test data as resource -->
   <ItemGroup>
     <Content Remove="testdata\**" />
     <EmbeddedResource Include="testdata\**" />    
+  </ItemGroup>  
+
+  <!-- Finally, copy the test configuration file to the output directory -->
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>  
 
 </Project>
