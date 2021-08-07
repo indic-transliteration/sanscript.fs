@@ -23,7 +23,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\sanscript.fsproj" />
+    <ProjectReference Include="..\src\Indic.Sanscript.fsproj" />
   </ItemGroup>
 
   <!-- Include all language test data as resource -->

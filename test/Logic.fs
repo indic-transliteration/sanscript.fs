@@ -1,8 +1,8 @@
-namespace FSharp.Indic.Sanscript.Tests
+namespace Indic.Sanscript.Tests
 
 open System.Reflection
 open Tomlet
-open FSharp.Indic.Sanscript
+open Indic.Sanscript
 
 module Logic =
 

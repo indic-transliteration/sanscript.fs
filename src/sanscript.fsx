@@ -3,11 +3,13 @@
 #r "nuget: Samboy063.Tomlet"
 #load "Sanscript.Core.fs"
 
+open System.IO
 open System.Reflection
 open FSharp.Indic.Sanscript
 open Tomlet
 
-let assembly = Assembly.LoadFile("/home/dev/work/sanscript.fs/src/bin/Debug/net5.0/sanscript.dll")
+let cwd = Directory.GetCurrentDirectory()
+let assembly = Assembly.LoadFile($"{cwd}/bin/Debug/net5.0/Sanscript.dll")
 
 // Inject Toml decoding function
 let tryTomlDecode =
@@ -17,5 +19,5 @@ let tryTomlDecode =
     SansCore.tryDecodeScheme tomlDecode assembly 
 
 // Test: Just to check if we are able to decode a specific toml file
-let l,t = tryTomlDecode "sanscript.toml.brahmic.devanagari.toml" 
+let l,t = tryTomlDecode "Sanscript.toml.brahmic.devanagari.toml" 
           |> Async.RunSynchronously |> Option.get   // TODO

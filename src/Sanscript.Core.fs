@@ -1,4 +1,4 @@
-﻿namespace FSharp.Indic.Sanscript
+﻿namespace Indic.Sanscript
 
 open System
 open System.IO

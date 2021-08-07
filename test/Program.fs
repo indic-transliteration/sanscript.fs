@@ -1,4 +1,4 @@
-open FSharp.Indic.Sanscript
+open Indic.Sanscript
 
 module Program = 
   

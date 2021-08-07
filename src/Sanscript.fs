@@ -1,4 +1,4 @@
-﻿namespace FSharp.Indic.Sanscript
+﻿namespace Indic.Sanscript
 
 open System
 open System.Reflection
@@ -21,7 +21,7 @@ module Sanscript =
     // Map of (<name of the language>, <TOML Document>)
     let private schemes =
         assembly.GetManifestResourceNames()
-        |> Array.filter (fun m -> m.StartsWith("sanscript"))
+        |> Array.filter (fun m -> m.StartsWith("Indic.Sanscript"))
         |> Array.map tryTomlDecode
         |> Async.Parallel
         |> Async.RunSynchronously 
