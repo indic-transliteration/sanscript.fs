@@ -19,9 +19,10 @@ type TestCases(helper: ITestOutputHelper) =
     let data s =
         let prefix = 
             let resfolder = "testdata"
-            let resname = assembly.GetManifestResourceNames().[0] 
-            let len =  resname.LastIndexOf(resfolder) + resfolder.Length + 1
-            resname.Substring(0, len)
+            let resnames = assembly.GetManifestResourceNames() 
+                          |> Array.filter (fun m -> m.StartsWith("sanscript"))
+            let len =  resnames.[0].LastIndexOf(resfolder) + resfolder.Length + 1
+            resnames.[0].Substring(0, len)
 
         let m = prefix + s
         let d = assembly.GetManifestResourceStream(m)
