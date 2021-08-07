@@ -6,43 +6,33 @@ open System.Text
 open Xunit
 open Xunit.Abstractions
 type TestCases(helper: ITestOutputHelper) =
-    let assembly = Assembly.GetExecutingAssembly()
+    let tasm = Assembly.GetExecutingAssembly()
     let scasm = Assembly.Load("sanscript")
     let log s =
         helper.WriteLine(s)
 
-    let datamanifest (a: Assembly) m =
-        let d = a.GetManifestResourceStream(m)
-        use r = new StreamReader(d, Encoding.UTF8)
-        r.ReadToEnd()
-
-    let data s =
-        let prefix = 
-            let resfolder = "testdata"
-            let resnames = assembly.GetManifestResourceNames() 
-                          |> Array.filter (fun m -> m.StartsWith("sanscript"))
-            let len =  resnames.[0].LastIndexOf(resfolder) + resfolder.Length + 1
-            resnames.[0].Substring(0, len)
-
-        let m = prefix + s
-        let d = assembly.GetManifestResourceStream(m)
-        use r = new StreamReader(d, Encoding.UTF8)
-        r.ReadToEnd()
+    let testfname f =
+        let resfolder = "testdata"
+        let resnames = tasm.GetManifestResourceNames() 
+                      |> Array.filter (fun m -> m.StartsWith("sanscript"))
+        let len =  resnames.[0].LastIndexOf(resfolder) + resfolder.Length + 1
+        let prefix = resnames.[0].Substring(0, len)
+        prefix + f
 
     [<Fact>]
     let ``Decode a valid language scheme`` () =
-        let toml = data "valid.toml"
-        Assert.True(Logic.isGoodScheme toml)
+        let m = testfname "valid.toml"
+        Assert.True(Logic.isGoodScheme tasm m)
 
     [<Fact>]
     let ``Decode an invalid language scheme`` () =
-        let toml = data "invalid.toml"
-        Assert.False(Logic.isGoodScheme toml)
+        let m = testfname "invalid.toml"
+        Assert.False(Logic.isGoodScheme tasm m)
 
     [<Fact>]
     let ``Decode all language schemes`` () =
         scasm.GetManifestResourceNames() 
         |> Array.filter(fun s -> s.StartsWith("sanscript"))
-        |> Array.map (datamanifest scasm >> Logic.isGoodScheme)
+        |> Array.map (Logic.isGoodScheme scasm)
         |> Array.reduce (&&)
         |> Assert.True
