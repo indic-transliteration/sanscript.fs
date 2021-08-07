@@ -8,10 +8,6 @@
 
   <ItemGroup>
     <Compile Include="Sanscript.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Tommy" Version="3.0.1" />
   </ItemGroup>  
 
   <!-- Include all language schemes as embedded resources
@@ -23,6 +19,9 @@
   <ItemGroup>
     <EmbeddedResource Include="toml\brahmic\**" />
     <EmbeddedResource Include="toml\roman\**" />
+  </ItemGroup>  
+  <ItemGroup>
+    <PackageReference Include="Samboy063.Tomlet" Version="1.3.5" />
   </ItemGroup>
 
 </Project>

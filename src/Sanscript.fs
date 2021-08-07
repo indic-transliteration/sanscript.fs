@@ -4,26 +4,28 @@ open System
 open System.IO
 open System.Reflection
 open System.Text
-open Tommy
+open Tomlet
 
 module Sanscript =
+
     let undefined<'T> : 'T = failwith "Not implemented yet"
 
     let assembly = Assembly.GetExecutingAssembly()
 
-    let stream s = 
-        assembly.GetManifestResourceStream(s)
+    let stream (m) = 
+        assembly.GetManifestResourceStream(m)
 
     let decodeScheme s =
         try
-            let toml = TOML.Parse(s)
+            let p = TomlParser()
+            let toml = p.Parse s
             Ok toml
         with
         | exn as ex -> Error ex.Message
 
     let tryDecodeScheme manifest = async {
         use r = new StreamReader(stream manifest, Encoding.UTF8)
-        let toml = decodeScheme r
+        let toml = decodeScheme (r.ReadToEnd())
         match toml with
         | (Ok tbl) -> return Some tbl
         | (Error msg) -> 
@@ -38,6 +40,7 @@ module Sanscript =
         |> Async.Parallel
         |> Async.RunSynchronously 
         |> Array.choose id
+
 
     /// <summary>
     ///   The transliteration function.
