@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Toml.fs" />
+  </ItemGroup>
+
+  <!-- Include all language schemes as embedded resources
+  so that we do not incur runtime load delays. -->
+  <ItemGroup>
+    <Content Remove="data\brahmic\**" />
+    <Content Remove="data\roman\**" />
+  </ItemGroup>  
+  <ItemGroup>
+    <EmbeddedResource Include="data\brahmic\**" />
+    <EmbeddedResource Include="data\roman\**" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <PackageReference Include="Samboy063.Tomlet" Version="1.3.5" />
+  </ItemGroup>
+
+</Project>

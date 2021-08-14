@@ -1,7 +1,7 @@
 ﻿module FScript
 
 #r "nuget: Samboy063.Tomlet"
-#load "Sanscript.Core.fs"
+#load "Sanscript.fs"
 
 open System.IO
 open System.Reflection
@@ -16,8 +16,8 @@ let tryTomlDecode =
     let tomlDecode =
         let p = TomlParser()
         p.Parse
-    SansCore.tryDecodeScheme tomlDecode assembly 
+    SansCore.tryDecodeScheme tomlDecode assembly
 
 // Test: Just to check if we are able to decode a specific toml file
-let l,t = tryTomlDecode "Sanscript.toml.brahmic.devanagari.toml" 
+let l,t = tryTomlDecode "Sanscript.toml.brahmic.devanagari.toml"
           |> Async.RunSynchronously |> Option.get   // TODO

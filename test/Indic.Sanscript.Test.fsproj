@@ -24,6 +24,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Indic.Sanscript.fsproj" />
+    <ProjectReference Include="..\schemes\Indic.Sanscript.Schemes.fsproj" />
+    <ProjectReference Include="..\schemes\toml\Indic.Sanscript.Schemes.Toml.fsproj" />
   </ItemGroup>
 
   <!-- Include all language test data as resource -->

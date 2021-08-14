@@ -7,22 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Sanscript.Core.fs" />
     <Compile Include="Sanscript.fs" />
-  </ItemGroup>  
-
-  <!-- Include all language schemes as embedded resources
-  so that we do not incur runtime load delays. -->
-  <ItemGroup>
-    <Content Remove="toml\brahmic\**" />
-    <Content Remove="toml\roman\**" />
-  </ItemGroup>  
-  <ItemGroup>
-    <EmbeddedResource Include="toml\brahmic\**" />
-    <EmbeddedResource Include="toml\roman\**" />
-  </ItemGroup>  
-  <ItemGroup>
-    <PackageReference Include="Samboy063.Tomlet" Version="1.3.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\schemes\toml\Indic.Sanscript.Schemes.Toml.fsproj" />
+    <ProjectReference Include="..\schemes\Indic.Sanscript.Schemes.fsproj" />
+  </ItemGroup>  
 </Project>
