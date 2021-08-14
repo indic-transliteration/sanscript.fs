@@ -8,20 +8,31 @@ open Indic.Sanscript.Schemes
 open Tomlet.Models
 
 module Sanscript =
+
   let undefined<'T> : 'T = failwith "Not implemented yet"
 
-  // Assembly in which scheme files are embedded
-  let assembly = Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType)
+  // Internal private module that deals with loading language scheme files,
+  // decoding them and creating an array of language schemes that can be used
+  // across various other functions.
+  module private Internal =
+    // Assembly in which language scheme files are embedded
+    let assembly = Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType)
 
-  // Inject Toml decoding function
-  let tryTomlDecode =
-    Schemes.tryDecodeScheme Toml.parse assembly
 
-  // Get our language schemes
-  let schemes = Schemes.schemes tryTomlDecode assembly
+    // List of manifests (language scheme files) that contain the language schemes
+    let manifests =
+      Schemes.schemeFiles assembly "Indic.Sanscript.Schemes.Toml"
+
+    // Inject Toml decoding function - we'll use this function for
+    // decoding all the language schemes from the manifest files.
+    let tryTomlDecode =
+      Schemes.tryDecodeScheme Toml.parse assembly
+
+    // Decode language schemes files from the manifest files
+    let schemes = Schemes.schemes tryTomlDecode manifests
 
   /// <summary>
-  ///   The transliteration function.
+  ///   The transliteration function. The only public function in this module.
   ///
   /// <para>
   ///     This function transliterates data from fromlang to tolang. The transliteration
@@ -50,7 +61,7 @@ module Sanscript =
   /// <category>Foo</category>
   let t data fromlang tolang options =
 
-    let scheme lng = schemes.[lng]
+    let scheme lng = Internal.schemes.[lng]
     let table lng t = (scheme lng).GetSubTable t
     let keys (t: TomlTable) = t.Keys
 

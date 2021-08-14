@@ -2,6 +2,7 @@ namespace Indic.Sanscript.Tests
 
 open System.IO
 open System.Reflection
+open Indic.Sanscript.Schemes
 open Indic.Sanscript.Schemes.Toml
 open Xunit
 open Xunit.Abstractions
@@ -13,8 +14,7 @@ type TestCases(helper: ITestOutputHelper) =
 
     let testfname f =
         let resfolder = "testdata"
-        let resnames = tasm.GetManifestResourceNames()
-                      |> Array.filter (fun m -> m.StartsWith("Indic.Sanscript"))
+        let resnames = Schemes.schemeFiles tasm "Indic.Sanscript.Test"
         let len =  resnames.[0].LastIndexOf(resfolder) + resfolder.Length + 1
         let prefix = resnames.[0].Substring(0, len)
         prefix + f
@@ -31,8 +31,7 @@ type TestCases(helper: ITestOutputHelper) =
 
     [<Fact>]
     let ``Decode all language schemes`` () =
-        scasm.GetManifestResourceNames()
-        |> Array.filter(fun s -> s.StartsWith("Indic.Sanscript"))
+        Schemes.schemeFiles scasm "Indic.Sanscript.Schemes.Toml"
         |> Array.map (Logic.isGoodScheme scasm)
         |> Array.reduce (&&)
         |> Assert.True

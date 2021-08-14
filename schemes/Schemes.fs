@@ -6,7 +6,24 @@ open System.Reflection
 open System.Text
 open System.Collections.Generic
 
-
+// Each of the language schemes have the following components
+// Regardless of the format of the schemes themselves, we extract
+// the components in this form for any language.
+type Scheme =
+  { Vowels: IDictionary<string, string>
+    VowelMarks: IDictionary<string, string>
+    Yogavaahas: IDictionary<string, string>
+    Virama: IDictionary<string, string>
+    Consonants: IDictionary<string, string>
+    Symbols: IDictionary<string, string>
+    Zwj: IDictionary<string, string>
+    Skip: IDictionary<string, string>
+    Accents: IDictionary<string, string>
+    AccentedVowelAlternates: IDictionary<string, string array>
+    Candra: IDictionary<string, string>
+    Other: IDictionary<string, string>
+    ExtraConsonants: IDictionary<string, string>
+    Alternates: IDictionary<string, string array> }
 module Schemes =
 
   let undefined<'T> : 'T = failwith "Not implemented yet"
@@ -67,12 +84,23 @@ module Schemes =
       return None
   }
 
-  // Map of (<name of the language>, <TOML Document>)
-  let schemes f (a: Assembly) =
+  // Get the language scheme files from a assembly
+  // a: Assembly from which the languages schemes files are to be extracted
+  // n: Namespace of the module in the assembly that contains the scheme files
+  let schemeFiles (a: Assembly) (n: string) =
     a.GetManifestResourceNames()
-    |> Array.filter (fun m -> m.StartsWith("Indic.Sanscript"))
+    |> Array.filter (fun m -> m.StartsWith(n))
+
+  // Map of (<name of the language>, <TOML Document>)
+  // f: Function that extracts / parses the scheme out of a manifest
+  // ms: Array of manifests that contain the language schemes
+  let schemes f ms =
+    ms
     |> Array.map f
     |> Async.Parallel
     |> Async.RunSynchronously
     |> Array.choose id
     |> Map.ofArray
+
+  // Given a language, return a scheme for that language
+  let scheme (l: string) : Scheme = undefined
