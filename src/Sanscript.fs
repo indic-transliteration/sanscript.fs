@@ -9,7 +9,7 @@ open Tomlet.Models
 
 module Sanscript =
 
-  let undefined<'T> : 'T = failwith "Not implemented yet"
+  let private undefined<'T> : 'T = failwith "Not implemented yet"
 
   // Internal private module that deals with loading language scheme files,
   // decoding them and creating an array of language schemes that can be used
@@ -49,7 +49,7 @@ module Sanscript =
   ///
   /// <example>
   ///   <code>
-  ///     let output = Sanscript.t("कर्मण्येवाधिकारस्ते मा फलेषु कदाचन । मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥", "devanagari", "iast")
+  ///     let output = Sanscript.t "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन । मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ॥" "devanagari" "iast"
   ///     Console.WriteLine(output)
   ///   </code>
   ///   will print...
@@ -67,4 +67,4 @@ module Sanscript =
 
     let capitalise (s: string) =
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s)
-    undefined
+    ""

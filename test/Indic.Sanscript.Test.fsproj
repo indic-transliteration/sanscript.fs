@@ -3,6 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Logic.fs" />
@@ -12,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Samboy063.Tomlet" Version="1.3.5" />
+    <PackageReference Include="Shouldly" Version="4.0.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,11 +23,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\src\Indic.Sanscript.fsproj" />
-    <ProjectReference Include="..\schemes\Indic.Sanscript.Schemes.fsproj" />
-    <ProjectReference Include="..\schemes\toml\Indic.Sanscript.Schemes.Toml.fsproj" />
   </ItemGroup>
 
   <!-- Include all language test data as resource -->
@@ -37,6 +34,11 @@
   <!-- Finally, copy the test configuration file to the output directory -->
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Indic.Sanscript.fsproj" />
+    <ProjectReference Include="..\schemes\Indic.Sanscript.Schemes.fsproj" />
+    <ProjectReference Include="..\schemes\toml\Indic.Sanscript.Schemes.Toml.fsproj" />
   </ItemGroup>  
 
 </Project>
