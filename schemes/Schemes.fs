@@ -101,6 +101,3 @@ module Schemes =
     |> Async.RunSynchronously
     |> Array.choose id
     |> Map.ofArray
-
-  // Given a language, return a scheme for that language
-  let scheme (l: string) : Scheme = undefined

@@ -18,7 +18,6 @@ module Sanscript =
     // Assembly in which language scheme files are embedded
     let assembly = Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType)
 
-
     // List of manifests (language scheme files) that contain the language schemes
     let manifests =
       Schemes.schemeFiles assembly "Indic.Sanscript.Schemes.Toml"
@@ -64,6 +63,9 @@ module Sanscript =
     let scheme lng = Internal.schemes.[lng]
     let table lng t = (scheme lng).GetSubTable t
     let keys (t: TomlTable) = t.Keys
+
+    let fromScheme = scheme fromlang
+    let toScheme = scheme tolang
 
     let capitalise (s: string) =
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s)

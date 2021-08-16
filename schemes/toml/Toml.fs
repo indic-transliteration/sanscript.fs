@@ -7,6 +7,6 @@ module Toml =
   type TomlType = class end
 
   // Function to parse TOML files
-  let parse =
+  let parse s =
     let p = TomlParser()
-    p.Parse
+    p.Parse s
