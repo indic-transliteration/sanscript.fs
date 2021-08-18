@@ -1,34 +1,13 @@
 ﻿namespace Indic.Sanscript
 
 open System
-open System.Reflection
 open System.Globalization
 open Indic.Sanscript.Schemes
-open Indic.Sanscript.Schemes
-open Tomlet.Models
 
 module Sanscript =
 
+  // Placeholder for unimplemented functions
   let private undefined<'T> : 'T = failwith "Not implemented yet"
-
-  // Internal private module that deals with loading language scheme files,
-  // decoding them and creating an array of language schemes that can be used
-  // across various other functions.
-  module private Internal =
-    // Assembly in which language scheme files are embedded
-    let assembly = Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType)
-
-    // List of manifests (language scheme files) that contain the language schemes
-    let manifests =
-      Schemes.schemeFiles assembly "Indic.Sanscript.Schemes.Toml"
-
-    // Inject Toml decoding function - we'll use this function for
-    // decoding all the language schemes from the manifest files.
-    let tryTomlDecode =
-      Schemes.tryDecodeScheme Toml.parse assembly
-
-    // Decode language schemes files from the manifest files
-    let schemes = Schemes.schemes tryTomlDecode manifests
 
   /// <summary>
   ///   The transliteration function. The only public function in this module.
@@ -59,13 +38,8 @@ module Sanscript =
   ///
   /// <category>Foo</category>
   let t data fromlang tolang options =
-
-    let scheme lng = Internal.schemes.[lng]
-    let table lng t = (scheme lng).GetSubTable t
-    let keys (t: TomlTable) = t.Keys
-
-    let fromScheme = scheme fromlang
-    let toScheme = scheme tolang
+    let f = Schemes.scheme fromlang
+    let t = Schemes.scheme tolang
 
     let capitalise (s: string) =
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s)
