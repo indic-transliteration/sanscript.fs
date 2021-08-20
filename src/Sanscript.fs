@@ -2,12 +2,16 @@
 
 open System
 open System.Globalization
+open System.Reflection
 open Indic.Sanscript.Schemes
 
 module Sanscript =
 
   // Placeholder for unimplemented functions
   let private undefined<'T> : 'T = failwith "Not implemented yet"
+
+  // In which assembly are schemes present?
+  let private scheme = Schemes.scheme (Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType))
 
   /// <summary>
   ///   The transliteration function. The only public function in this module.
@@ -38,8 +42,8 @@ module Sanscript =
   ///
   /// <category>Foo</category>
   let t data fromlang tolang options =
-    let f = Schemes.scheme fromlang
-    let t = Schemes.scheme tolang
+    let f = scheme fromlang
+    let t = scheme tolang
 
     let capitalise (s: string) =
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s)

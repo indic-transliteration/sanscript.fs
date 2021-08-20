@@ -23,26 +23,23 @@ type TestCases(helper: ITestOutputHelper) =
   // Shorthand for Sanscript.t with default Options
   let sanscript d f t = (Sanscript.t d f t "").ToString()
 
-  let testfname f =
-    let resfolder = "testdata"
-    let resnames = Schemes.schemeFiles tasm "Indic.Sanscript.Test"
-    let len =  resnames.[0].LastIndexOf(resfolder) + resfolder.Length + 1
-    let prefix = resnames.[0].Substring(0, len)
-    prefix + f
+  // Test manifests
+  let testfile (m: string) = (tasm.GetManifestResourceNames() |> Array.filter (fun v -> v.EndsWith("." + m))).[0]
 
   [<Fact>]
   let ``Decode a valid language scheme`` () =
-    let m = testfname "valid.toml"
+    let m = testfile "valid.toml"
     (Logic.isGoodScheme tasm m).ShouldBeTrue()
 
   [<Fact>]
   let ``Decode an invalid language scheme`` () =
-    let m = testfname "invalid.toml"
+    let m = testfile "invalid.toml"
     (Logic.isGoodScheme tasm m).ShouldBeFalse()
 
   [<Fact>]
   let ``Decode all language schemes`` () =
-    let test = Schemes.schemeFiles scasm "Indic.Sanscript.Schemes.Toml"
+    let test = scasm.GetManifestResourceNames()
+              |> Array.filter (fun m -> m.StartsWith("Indic.Sanscript"))
               |> Array.map (Logic.isGoodScheme scasm)
               |> (Array.reduce (&&))
     test.ShouldBeTrue()

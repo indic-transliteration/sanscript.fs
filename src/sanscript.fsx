@@ -1,4 +1,4 @@
-﻿module Sanscript.Fsi
+﻿module Indic.Sanscript.Fsi
 
 #r "nuget: Samboy063.Tomlet"
 #load "../schemes/toml/Toml.fs"
@@ -11,11 +11,10 @@ open Indic.Sanscript.Schemes
 open Tomlet.Models
 
 let cwd = Directory.GetCurrentDirectory()
-let assembly = Assembly.LoadFile($"{cwd}/bin/Debug/net5.0/Sanscript.dll")
-let tryTomlDecode =
-  Schemes.tryDecodeScheme Toml.parse assembly
+let asm = Assembly.LoadFile($"{cwd}/bin/Debug/net5.0/Indic.Sanscript.Schemes.Toml.dll")
+let s = Schemes.scheme asm "tamil"
 
-// Test: Just to check if we are able to decode a specific toml file
-let l,d = tryTomlDecode "Sanscript.toml.brahmic.tamil.toml"
-          |> Async.RunSynchronously |> Option.get   // TODO
+// let tamil = (asm.GetManifestResourceNames() |> Array.filter(fun m -> m.EndsWith("tamil.toml"))).[0]
 
+// // Test: Just to check if we are able to decode a specific toml file
+// let l,s = (Schemes.tryDecodeScheme asm tamil |> Async.RunSynchronously).Value

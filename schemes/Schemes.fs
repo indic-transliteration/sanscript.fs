@@ -5,35 +5,37 @@ open System.IO
 open System.Reflection
 open System.Text
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 
 // Each of the language schemes have the following components
 // Regardless of the format of the schemes themselves, we extract
 // the components in this form for any language.
 type Scheme =
-  { Vowels: IDictionary<string, string>
-    VowelMarks: IDictionary<string, string>
-    Yogavaahas: IDictionary<string, string>
-    Virama: IDictionary<string, string>
-    Consonants: IDictionary<string, string>
-    Symbols: IDictionary<string, string>
-    Zwj: IDictionary<string, string>
-    Skip: IDictionary<string, string>
-    Accents: IDictionary<string, string>
-    AccentedVowelAlternates: IDictionary<string, string array>
-    Candra: IDictionary<string, string>
-    Other: IDictionary<string, string>
-    ExtraConsonants: IDictionary<string, string>
-    Alternates: IDictionary<string, string array> }
+  { Vowels: Map<string, string> option
+    VowelMarks: Map<string, string> option
+    Yogavaahas: Map<string, string> option
+    Virama: Map<string, string> option
+    Consonants: Map<string, string> option
+    Symbols: Map<string, string> option
+    Zwj: Map<string, string> option
+    Skip: Map<string, string> option
+    Accents: Map<string, string> option
+    AccentedVowelAlternates: Map<string, string list> option
+    Candra: Map<string, string> option
+    Other: Map<string, string> option
+    ExtraConsonants: Map<string, string> option
+    Alternates: Map<string, string list> option }
+
+// We want all our tests to access internal members from here
+module SchemesAssemblyInfo =
+  [<assembly: InternalsVisibleTo("Indic.Sanscript.Test")>]
+  do()
+
+// The main Schemes module
 module Schemes =
 
   // Placeholder for unimplemented functions
   let private undefined<'T> : 'T = failwith "Not implemented yet"
-
-  // In which assembly are the scheme files embedded?
-  // The purpose of this is to allow external modules (such as
-  // tests) to set up an assembly from which the scheme manifests
-  // can be loaded.
-  let mutable srcasm: Assembly = null
 
   // Private module that deals with loading language scheme
   // files and decoding them
@@ -41,13 +43,6 @@ module Schemes =
     //------------- Begin: Language Scheme-format-specific functions ----
     // These are the only configurations required when a language scheme
     // is changed between other formats JSON, TOML, etc.
-
-    // Assembly in which language scheme files are embedded
-    let assembly =
-      if (isNull srcasm) then
-        Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType)
-      else
-        srcasm
 
     // Parse function, that takes in language scheme data and emits out a
     // format-specific form of the data. Eg: Toml.parse emits out a
@@ -57,8 +52,12 @@ module Schemes =
     let parse = Toml.parse
 
     // A function that takes in the emitted parsed output (above), and returns
-    // back a standard F# dictionary for consumption in other modules.
-    let map = Toml.map
+    // back a standard F# Map<string, string> for consumption in other modules.
+    let maps = Toml.maps
+
+    // A function that takes in the emitted parsed output (above), and returns
+    // back a standard F# Map<string, string list> for consumption in other modules.
+    let mapl = Toml.mapl
     //------------- End: Language Scheme-format-specific functions ----
 
     // Decode scheme data into a decoded object
@@ -77,8 +76,8 @@ module Schemes =
 
     // Get data out of a scheme file
     // m: Manifest name of the scheme file (Eg: "sanscript.toml.brahmic.devanagari.toml")
-    let data (m: string) =
-      let s = assembly.GetManifestResourceStream(m)
+    let data (a: Assembly) (m: string) =
+      let s = a.GetManifestResourceStream(m)
       use r = new StreamReader(s, Encoding.UTF8)
       r.ReadToEnd()
 
@@ -99,33 +98,33 @@ module Schemes =
       let filei = if exti > 0 then m.LastIndexOf(".", exti - 1) else -1
       m.Substring(filei + 1,(exti - filei - 1))
 
-    // Try decoding a scheme manifest file
-    // m: Manifest file name
-    // returns: Option<(string, DecodedObject)>
-    //          Success: tuple (<language name>, <parsed scheme object>)
-    //          Failure: None
-    let tryDecodeScheme (m: string) = async {
-      let scheme = data m |> decodeScheme
-      match scheme with
-      | (Ok doc) -> return Some (lang m, doc)
-      | (Error msg) ->
-        Console.WriteLine($"Unable to parse {m}: {msg}")
-        return None
-    }
-
     // List of manifests (language scheme files) that contain the language schemes
-    let manifests =
-      assembly.GetManifestResourceNames()
+    let manifests (a: Assembly) =
+      a.GetManifestResourceNames()
       |> Array.filter (fun m -> m.StartsWith("Indic.Sanscript.Schemes.Toml"))
 
-    // Map of (<name of the language>, <TOML Document>)
-    let schemes =
-      manifests
-      |> Array.map tryDecodeScheme
-      |> Async.Parallel
-      |> Async.RunSynchronously
-      |> Array.choose id
-      |> Map.ofArray
+  // Try decoding a scheme manifest file
+  // m: Manifest file name
+  // returns: Option<(string, DecodedObject)>
+  //          Success: tuple (<language name>, <parsed scheme object>)
+  //          Failure: None
+  let tryDecodeScheme (a: Assembly) (m: string) = async {
+    let scheme = Internal.data a m |> Internal.decodeScheme
+    match scheme with
+    | (Ok doc) -> return Some (Internal.lang m, doc)
+    | (Error msg) ->
+      Console.WriteLine($"Unable to parse {m}: {msg}")
+      return None
+  }
+
+  // Map of (<name of the language>, <TOML Document>)
+  let private schememap (a: Assembly) =
+    Internal.manifests a
+    |> Array.map (tryDecodeScheme a)
+    |> Async.Parallel
+    |> Async.RunSynchronously
+    |> Array.choose id
+    |> Map.ofArray
 
   /// <summary>
   ///   Language scheme for a specific language
@@ -136,23 +135,24 @@ module Schemes =
   /// </para>
   /// </summary>
   ///
+  /// <param name="asm">Name of the assembly in which the scheme files are present</param>
   /// <param name="lang">Name of the language (Eg: "devanagari")</param>
   ///
   /// <returns>Language Scheme</returns>
   ///
-  let scheme (lang: string) =
-    let d = Internal.schemes.[lang]
-    { Vowels = undefined
-      VowelMarks = undefined
-      Yogavaahas = undefined
-      Virama = undefined
-      Consonants = undefined
-      Symbols = undefined
-      Zwj = undefined
-      Skip = undefined
-      Accents = undefined
-      AccentedVowelAlternates = undefined
-      Candra = undefined
-      Other = undefined
-      ExtraConsonants = undefined
-      Alternates = undefined }
+  let scheme (asm: Assembly) (lang: string) =
+    let d = (schememap asm).[lang]
+    { Vowels = Internal.maps d "vowels"
+      VowelMarks = Internal.maps d "vowel_marks"
+      Yogavaahas = Internal.maps d "yogavaahas"
+      Virama = Internal.maps d "virama"
+      Consonants = Internal.maps d "consonants"
+      Symbols = Internal.maps d "symbols"
+      Zwj = Internal.maps d "zwj"
+      Skip = Internal.maps d "skip"
+      Accents = Internal.maps d "accents"
+      AccentedVowelAlternates = Internal.mapl d "accented_vowel_alternates"
+      Candra = Internal.maps d "candra"
+      Other = Internal.maps d "other"
+      ExtraConsonants = Internal.maps d "extra_consonants"
+      Alternates = Internal.mapl d "alternates"}

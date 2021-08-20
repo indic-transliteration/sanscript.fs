@@ -7,12 +7,9 @@ open Indic.Sanscript.Schemes
 
 module Logic =
 
-  let tryTomlDecode a =
-    Schemes.tryDecodeScheme Toml.parse a
-
   let isGoodScheme a m =
     let decode = async {
-      let! res = tryTomlDecode a m
+      let! res = Schemes.tryDecodeScheme a m
       return
         match res with
         | Some _ -> true
