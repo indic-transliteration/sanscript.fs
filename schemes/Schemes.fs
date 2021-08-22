@@ -6,25 +6,37 @@ open System.Reflection
 open System.Text
 open System.Collections.Generic
 open System.Runtime.CompilerServices
+open Tomlet.Models
 
 // Each of the language schemes have the following components
 // Regardless of the format of the schemes themselves, we extract
 // the components in this form for any language.
 type Scheme =
-  { Vowels: Map<string, string> option
-    VowelMarks: Map<string, string> option
-    Yogavaahas: Map<string, string> option
-    Virama: Map<string, string> option
-    Consonants: Map<string, string> option
-    Symbols: Map<string, string> option
-    Zwj: Map<string, string> option
-    Skip: Map<string, string> option
+  { Vowels: Map<string, string>
+    Yogavaahas: Map<string, string>
+    Virama: Map<string, string>
+    Consonants: Map<string, string>
+    Symbols: Map<string, string>
+    ExtraConsonants: Map<string, string>
+
+    // Optional items that may not be configured in
+    // the scheme files, depending on the language
+    VowelMarks: Map<string, string> option // Roman scripts do not have vowel_marks
     Accents: Map<string, string> option
     AccentedVowelAlternates: Map<string, string list> option
-    Candra: Map<string, string> option
-    Other: Map<string, string> option
-    ExtraConsonants: Map<string, string> option
-    Alternates: Map<string, string list> option }
+    Zwj: Map<string, string> option
+    Skip: Map<string, string> option
+    Alternates: Map<string, string list> option
+    Candra: Map<string, string> option // Roman scripts do not have candra
+    Other: Map<string, string> option }
+  with
+    // Get the values only from the maps - this is used for adding alternates for some of the characters
+    member private x.Values (m: Map<string, string>) = m |> Map.toList |> List.map (fun (k,v) -> v)
+
+    // Get only the values of some maps as a list
+    member x.VowelsList = x.Values x.Vowels
+    member x.ConsonantList = x.Values x.Consonants
+    member x.ExtraConsonantList = x.Values x.ExtraConsonants
 
 // We want all our tests to access internal members from here
 module SchemesAssemblyInfo =
@@ -53,11 +65,17 @@ module Schemes =
 
     // A function that takes in the emitted parsed output (above), and returns
     // back a standard F# Map<string, string> for consumption in other modules.
-    let maps = Toml.maps
+    let maps d s= (Toml.maps d s).Value
 
     // A function that takes in the emitted parsed output (above), and returns
     // back a standard F# Map<string, string list> for consumption in other modules.
-    let mapl = Toml.mapl
+    let mapl d s= (Toml.mapl d s).Value
+
+    // Same as maps and mapl, but returns an option: these return None if
+    // the said character type is not given in the Toml files.
+    let mapso = Toml.maps
+    let maplo = Toml.mapl
+
     //------------- End: Language Scheme-format-specific functions ----
 
     // Decode scheme data into a decoded object
@@ -142,17 +160,21 @@ module Schemes =
   ///
   let scheme (asm: Assembly) (lang: string) =
     let d = (schememap asm).[lang]
+
     { Vowels = Internal.maps d "vowels"
-      VowelMarks = Internal.maps d "vowel_marks"
       Yogavaahas = Internal.maps d "yogavaahas"
       Virama = Internal.maps d "virama"
       Consonants = Internal.maps d "consonants"
       Symbols = Internal.maps d "symbols"
-      Zwj = Internal.maps d "zwj"
-      Skip = Internal.maps d "skip"
-      Accents = Internal.maps d "accents"
-      AccentedVowelAlternates = Internal.mapl d "accented_vowel_alternates"
-      Candra = Internal.maps d "candra"
-      Other = Internal.maps d "other"
       ExtraConsonants = Internal.maps d "extra_consonants"
-      Alternates = Internal.mapl d "alternates"}
+
+      // Optional items that may not be configured in
+      // the scheme files, depending on the language
+      VowelMarks = Internal.mapso d "vowel_marks"
+      Accents = Internal.mapso d "accents"
+      AccentedVowelAlternates = Internal.maplo d "accented_vowel_alternates"
+      Zwj = Internal.mapso d "zwj"
+      Skip = Internal.mapso d "skip"
+      Alternates = Internal.maplo d "alternates"
+      Candra = Internal.mapso d "candra"
+      Other = Internal.mapso d "other" }
