@@ -15,7 +15,6 @@ module Toml =
     |> Seq.map (fun kv -> (kv.Key, kv.Value))
     |> Map.ofSeq
 
-
   // Function to parse TOML files
   let parse s =
     let p = TomlParser()
@@ -49,3 +48,17 @@ module Toml =
       Some m
     with
       | _ -> None
+
+  // Given a TomlTable, this function adds a new boolean value
+  // in the table. We only need to support boolean values as
+  // we need to only add one calculated field - IsRoman - which
+  // is a boolean field.
+  let addBoolValue (t: TomlTable) (k: string) (v: bool) =
+    let tv = if v then TomlBoolean.TRUE else TomlBoolean.FALSE
+    t.PutValue(k,tv)
+
+  // Gets a boolean value of a key in the TomlTable - counterpart
+  // to the above function - to retrieve IsRoman field.
+  let getBoolValue (t: TomlTable) (k: string) =
+    let tv = t.GetValue(k)
+    tv = (TomlBoolean.TRUE :> TomlValue)

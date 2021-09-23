@@ -11,11 +11,11 @@ module Sanscript =
     // Placeholder for unimplemented functions
     let undefined<'T> : 'T = failwith "Not implemented yet"
 
-    // In which assembly are schemes present?
-    let scheme = Schemes.scheme (Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType))
+    // Create a map of all schemes
+    let schememap = Schemes.schememap (Assembly.GetAssembly(typeof<Toml.TomlType>.DeclaringType))
 
-    // Get the values only from the maps - this is used for adding alternates for some of the characters
-    let values (m: Map<string, string>) = m |> Map.toList |> List.map (fun (k,v) -> v)
+    // Given a language, get its scheme
+    let scheme (lang: string) = schememap.[lang]
 
     // For easily navigating inside an Option
     let (>>=) m f = Option.bind f m
@@ -25,9 +25,11 @@ module Sanscript =
         CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s)
 
     // For every character in the codelist add alternative characters of that value
-    // in the alternates map - these additional alternates are capitalised form of
+    // in the alternates map of the langscheme - these additional alternates are capitalised form of
     // the existing alternates plus the original value also being added in its capitalised form.
-    let addCapitalAlternates (codelist: string list) (alts: Map<string, string list> option): Map<string, string list> =
+    let addCapitalAlternates (langscheme: Scheme) (codelist: string list) =
+      let alts = langscheme.Alternates
+
       // Get all the alternates for a single character
       let altc ch =
         let alt = alts
@@ -54,18 +56,26 @@ module Sanscript =
     let join (m1: Map<string,string list>) (m2: Map<string,string list>) =
       Map.fold (fun (m: Map<string,string list>) k v -> Map.add k v m) m1 m2
 
-    let alternatesmap =
-      [ addCapitalAlternates (scheme "iast").VowelsList (scheme "iast").Alternates
-        addCapitalAlternates (scheme "iast").ConsonantList (scheme "iast").Alternates
-        addCapitalAlternates (scheme "iast").ExtraConsonantList (scheme "iast").Alternates
-        addCapitalAlternates ["oṃ"] (scheme "iast").Alternates
-        addCapitalAlternates (scheme "kolkata_v2").VowelsList (scheme "kolkata_v2").Alternates
-        addCapitalAlternates (scheme "kolkata_v2").ConsonantList (scheme "kolkata_v2").Alternates
-        addCapitalAlternates (scheme "kolkata_v2").ExtraConsonantList (scheme "kolkata_v2").Alternates
-        addCapitalAlternates (scheme "iso").VowelsList (scheme "iso").Alternates
-        addCapitalAlternates (scheme "iso").ConsonantList (scheme "iso").Alternates
-        addCapitalAlternates (scheme "iso").ExtraConsonantList (scheme "iso").Alternates
-        addCapitalAlternates ["oṃ"] (scheme "iso").Alternates ] |> List.fold join Map.empty
+    let iastalts =
+      [ addCapitalAlternates (scheme "iast") (scheme "iast").VowelsList
+        addCapitalAlternates (scheme "iast") (scheme "iast").ConsonantList
+        addCapitalAlternates (scheme "iast") (scheme "iast").ExtraConsonantList
+        addCapitalAlternates (scheme "iast") ["oṃ"] ] |> List.fold join Map.empty
+
+    let kolkataV2alts =
+      [ addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").VowelsList
+        addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").ConsonantList
+        addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").ExtraConsonantList ] |> List.fold join Map.empty
+
+    let isoalts =
+      [ addCapitalAlternates (scheme "iso") (scheme "iso").VowelsList
+        addCapitalAlternates (scheme "iso") (scheme "iso").ConsonantList
+        addCapitalAlternates (scheme "iso") (scheme "iso").ExtraConsonantList
+        addCapitalAlternates (scheme "iso") ["oṃ"] ] |> List.fold join Map.empty
+
+    (scheme "iast").Alternates <- Some iastalts
+    (scheme "kolkata_v2").Alternates <- Some kolkataV2alts
+    (scheme "iso").Alternates <- Some isoalts
 
   /// <summary>
   ///   The transliteration function. The only public function in this module.
@@ -98,5 +108,7 @@ module Sanscript =
   let t data fromlang tolang options =
     let f = Internal.scheme fromlang
     let t = Internal.scheme tolang
-    let a = Internal.alternatesmap
+
+    let m = [("a", [1;1;1]); ("b", [2;2;2]); ("c", [3;3;3])] |> Map.ofList
+
     ""
