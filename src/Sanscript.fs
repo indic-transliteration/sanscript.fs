@@ -56,26 +56,32 @@ module Sanscript =
     let join (m1: Map<string,string list>) (m2: Map<string,string list>) =
       Map.fold (fun (m: Map<string,string list>) k v -> Map.add k v m) m1 m2
 
+    // Add captial alternates to the following schemes
+    let iastsch = scheme "iast"
+    let kolkatav2sch = scheme "kolkata_v2"
+    let isosch = scheme "iso"
+
     let iastalts =
-      [ addCapitalAlternates (scheme "iast") (scheme "iast").VowelsList
-        addCapitalAlternates (scheme "iast") (scheme "iast").ConsonantList
-        addCapitalAlternates (scheme "iast") (scheme "iast").ExtraConsonantList
-        addCapitalAlternates (scheme "iast") ["oṃ"] ] |> List.fold join Map.empty
+      [ addCapitalAlternates iastsch iastsch.VowelsList
+        addCapitalAlternates iastsch iastsch.ConsonantList
+        addCapitalAlternates iastsch iastsch.ExtraConsonantList
+        addCapitalAlternates iastsch ["oṃ"] ] |> List.fold join Map.empty
 
     let kolkataV2alts =
-      [ addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").VowelsList
-        addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").ConsonantList
-        addCapitalAlternates (scheme "kolkata_v2") (scheme "kolkata_v2").ExtraConsonantList ] |> List.fold join Map.empty
+      [ addCapitalAlternates kolkatav2sch kolkatav2sch.VowelsList
+        addCapitalAlternates kolkatav2sch kolkatav2sch.ConsonantList
+        addCapitalAlternates kolkatav2sch kolkatav2sch.ExtraConsonantList ] |> List.fold join Map.empty
 
     let isoalts =
-      [ addCapitalAlternates (scheme "iso") (scheme "iso").VowelsList
-        addCapitalAlternates (scheme "iso") (scheme "iso").ConsonantList
-        addCapitalAlternates (scheme "iso") (scheme "iso").ExtraConsonantList
-        addCapitalAlternates (scheme "iso") ["oṃ"] ] |> List.fold join Map.empty
+      [ addCapitalAlternates isosch isosch.VowelsList
+        addCapitalAlternates isosch isosch.ConsonantList
+        addCapitalAlternates isosch isosch.ExtraConsonantList
+        addCapitalAlternates isosch ["oṃ"] ] |> List.fold join Map.empty
 
-    (scheme "iast").Alternates <- Some iastalts
-    (scheme "kolkata_v2").Alternates <- Some kolkataV2alts
-    (scheme "iso").Alternates <- Some isoalts
+    iastsch.Alternates <- Some iastalts
+    kolkatav2sch.Alternates <- Some kolkataV2alts
+    isosch.Alternates <- Some isoalts
+    let a = 8
 
   /// <summary>
   ///   The transliteration function. The only public function in this module.
