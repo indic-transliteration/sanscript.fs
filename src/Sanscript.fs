@@ -32,23 +32,26 @@ module Sanscript =
 
       // Get all the alternates for a single character
       let altc ch =
-        let alt = alts
+        let alt c = alts
                   // Pull out the list of alternates for the character
                   // If the said character does not have any alternates, just return None
-                  >>= fun m -> if (m.ContainsKey ch) then Some m.[ch] else None
+                  >>= fun m -> if (m.ContainsKey c) then Some m.[c] else None
                   // Capitalise each of the given alternatives, and add both
                   // non-capitalised and capitalised as alternatives of a given character
                   >>= fun v -> Some (List.collect (fun (c: string) -> [c; capitalise c]) v)
 
-        // Finally, add the capitalised version of the original character as an alternative
-        // Note that this must be added regardless of whether the character had an alternate
-        // list originally - this makes sure altc always returns a list of alternates.
-        if alt.IsNone then [capitalise ch] else (List.concat [[capitalise ch];alt.Value])
+        // Get all alternates for the given character, along with their capital forms
+        let altforc = alt ch
+        // Append the captital form of the key to this alternate list. If altforc had no
+        // alternate forms for the given character, this following statement makes sure
+        // that we atleast one element - ie, capital form of the given character, in the list
+        if altforc.IsNone then [capitalise ch] else (List.concat [[capitalise ch];altforc.Value])
 
       // Now, for each value in the codelist, create a new map of all the alternates
       // value with the new alternates that include the capital letters.
       let addtomap (m: Map<string, string list>) (c: string) =
-        let getmap _ = (Some (altc c))
+        let altforc = altc c // Get all alternates for the character, including their capital forms
+        let getmap _ = Some altforc
         m |> Map.change c getmap
       codelist |> List.fold addtomap alts.Value
 
@@ -81,7 +84,6 @@ module Sanscript =
     iastsch.Alternates <- Some iastalts
     kolkatav2sch.Alternates <- Some kolkataV2alts
     isosch.Alternates <- Some isoalts
-    let a = 8
 
   /// <summary>
   ///   The transliteration function. The only public function in this module.

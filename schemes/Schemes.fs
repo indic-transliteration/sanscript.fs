@@ -156,8 +156,8 @@ module Schemes =
         Candra = mapso doc "candra"
         Other = mapso doc "other"
 
-      // Finally, we have a calculated field: any scheme read from the
-      // roman directory, the following field will be made true.
+        // Finally, we have a calculated field: any scheme read from the
+        // roman directory, the following field will be made true.
         IsRoman = getBool doc "IsRoman" }
 
   // Try decoding a scheme manifest file
